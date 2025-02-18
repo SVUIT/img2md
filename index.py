@@ -6,7 +6,7 @@ def recognize_handwriting(image, api_key):
     model = genai.GenerativeModel("gemini-2.0-flash")
     prompt = """
     You are an AI specialized in recognizing handwritten text and mathematical formulas.
-    Extract text from the provided image and format it in **Markdown**.
+    Extract text from the provided handwritten text image and format it in **Markdown**.
 
     - Use **Markdown syntax** for text formatting.
     - Format **math expressions** using **LaTeX inside Markdown**.
