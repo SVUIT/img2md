@@ -2,7 +2,7 @@
 
 
 1. **Get a Gemini API Key**
-   - Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+   - Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
    - Click **Create API key**, then select any Google Cloud project to generate a new API key
    - Copy the API key
 
