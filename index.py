@@ -105,7 +105,7 @@ with gr.Blocks(title="Handwriting Recognition") as view:
             
             help_btn = gr.Button("How to use 🤔", 
                                  variant="huggingface", 
-                                 link = "https://github.com/NguyLam2704/img2md/blob/e07ab251e0bd080ee90c293940328a4033f95173/README.md")
+                                 link = "https://github.com/NguyLam2704/img2md/blob/803e057ae7c47aaa7032c01b9d25e290a533c905/README.md")
         with gr.Column():
             # Output markdown
             gr.Markdown("Response")
