@@ -1,5 +1,7 @@
 import google.generativeai as genai
 import gradio as gr
+import PIL.Image
+from datetime import datetime
 
 def generate_prompt(have_formula, language):
     if have_formula == 'Yes':
@@ -28,29 +30,51 @@ def generate_prompt(have_formula, language):
  
     return prompt
 
-def recognize_formula(api_key, language, type_of_text, *images):
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-2.0-flash")
-    prompt = generate_prompt(type_of_text, language)
-    
-    stream = model.generate_content(
-        contents= [prompt] + [image for image in images if image],
-        stream=True
-    )
-    response = ""
-               
-    for chunk in stream:
-        if chunk.text:
-            response +=chunk.text
-        yield response
+def generate_filename():
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    return f"recognition_result_{timestamp}.md"
 
-    response = response.replace("```", '').replace("```markdown", '').replace('markdown','')
-    with open('result.md', "w", encoding="utf-8") as file:
-        file.write(response)
+def recognize_formula(api_key, language, type_of_text, image_files):
+
+    try:
+        if not api_key:
+            return "Please enter your API key.", None
+        if not image_files:
+            return "Please upload at least one image.", None
+    
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-2.0-flash")
+        prompt = generate_prompt(type_of_text, language)
+
+        # Process images
+        images = []
+        for file in image_files:
+            try:
+                img = PIL.Image.open(file.name)
+                images.append(img)
+            except Exception as e:
+                return f"Error processing image: {str(e)}"
+
+        stream = model.generate_content(
+            contents= [prompt] + [image for image in images if image],
+            # stream=True
+        )
+
+        response = stream.text
+        response = response.replace("```", '').replace("```markdown", '').replace('markdown','')
+        filename = generate_filename()
+
+        with open(filename, "w", encoding="utf-8") as file:
+            file.write(response)
+
+        return response, filename
+    
+    except Exception as e:
+        return f"An error occurred: {str(e)}", None
 
 with gr.Blocks(title="Handwriting Recognition") as view:
     gr.Markdown("# Handwriting Recognition Tool")
-    gr.Markdown("Upload 5 images and provide your API key for processing.")
+    gr.Markdown("Upload images and provide your API key for processing.")
     with gr.Row():
         with gr.Column():
             # API Key input
@@ -71,24 +95,35 @@ with gr.Blocks(title="Handwriting Recognition") as view:
             )
             
             # Create image inputs programmatically
-            NUM_IMAGES = 5
-            with gr.Row():
-                image_inputs = [
-                    gr.Image(label=f"Image {i+1}", type="pil")
-                    for i in range(NUM_IMAGES)
-                ]
-        
+            image_files = gr.File(
+                file_count="multiple",
+                file_types=["image"],
+                label="Upload Images"
+            )
             # Submit button
             submit_btn = gr.Button("Submit", variant="primary")
+            
+            help_btn = gr.Button("How to use 🤔", 
+                                 variant="huggingface", 
+                                 link = "https://github.com/NguyLam2704/img2md/blob/e07ab251e0bd080ee90c293940328a4033f95173/README.md")
         with gr.Column():
             # Output markdown
             gr.Markdown("Response")
-            output_markdown = gr.Markdown(label="Response", container=True, show_label=True, line_breaks= True)
-    # Set up the event handler with unpacked image inputs
+            output_markdown = gr.Markdown(label="Response", 
+                                          container=True, 
+                                          show_label=True, 
+                                          line_breaks= True, 
+                                          height= 225)
+
+            file_output = gr.File(
+                label="Download Markdown File",
+                visible=True
+            )
+
     submit_btn.click(
         fn=recognize_formula,
-        inputs=[api_key_input, language, have_formula, *image_inputs],
-        outputs=output_markdown
+        inputs=[api_key_input, language, have_formula, image_files],
+        outputs=[output_markdown, file_output]
     )
 if __name__ == '__main__':  
     view.launch(share=True)
