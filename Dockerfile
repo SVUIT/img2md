@@ -29,4 +29,4 @@ EXPOSE 7860
 ENV GRADIO_SERVER_NAME=0.0.0.0
 
 # Lệnh chạy ứng dụng, thay 'index.py' bằng file chính của ứng dụng bạn
-CMD ["python3", "index.py"]
+CMD ["python3", "api.py"]

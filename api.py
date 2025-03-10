@@ -1,8 +1,12 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 import PIL.Image
 import google.generativeai as genai
-app = Flask(__name__)
+import os 
+from dotenv import load_dotenv
+
+load_dotenv()
+app = Flask(__name__, static_folder='.', static_url_path='',template_folder=".")
 CORS(app)
 
 def generate_prompt(have_formula, language):
@@ -55,7 +59,6 @@ def recognize_formula(api_key, language, type_of_text, images):
 
     return response
 
-
 @app.route('/api/recognize', methods=['POST'])
 def recognize():
     api_key = request.form.get('api_key')
@@ -71,6 +74,13 @@ def get_data():
     data = {"message": "Hello from Flask!"}
     return jsonify(data)
 
+@app.route('/')
+def serve_index():
+    return render_template('index.html',
+                           api_key=os.getenv('API_KEY'), 
+                           client_id=os.getenv('CLIENT_ID'), 
+                           app_id=os.getenv('APP_ID')) 
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=7860, debug=True)
 
