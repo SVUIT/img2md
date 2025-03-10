@@ -64,9 +64,16 @@
         </div>
     </div>
 
-    <script src="env.js"></script>
+    <script>
+        const ENV = {
+            API_KEY: "{{ api_key }}",
+            CLIENT_ID: "{{ client_id }}",
+            APP_ID: "{{ app_id }}"
+        };
+    </script>
     <script src="script.js"></script>
     <script type="text/javascript">
+       
         // Google Picker API variables
         const SCOPES = 'https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/drive.readonly';
         let tokenClient;
@@ -141,7 +148,7 @@
             }
 
             try {
-                const response = await fetch(`${ENV.API_URL}/api/recognize`, {
+                const response = await fetch(`/api/recognize`, {
                     method: "POST",
                     body: formData
                 });
