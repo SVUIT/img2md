@@ -1,2 +1,5 @@
-gradio
 google-generativeai
+flask
+flask_cors
+pillow 
+python-dotenv

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handwriting Recognition Tool</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Handwriting Recognition Tool</h2>
+        <p>Upload images from your device or Google Drive for processing.</p>
+
+        <a href="https://github.com/NguyLam2704/img2md/blob/main/README.md" class="github-link" target="_blank">
+            Read the Guide
+        </a>
+            
+        <div class="form-group">
+            <label for="apiKey">Gemini API Key:</label>
+            <input type="password" id="apiKey" placeholder="Enter your API key...">
+        </div>
+        
+        <div class="form-group">
+            <label for="language">Language:</label>
+            <select id="language">
+                <option value="English">English</option>
+                <option value="Vietnamese">Vietnamese</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="haveFormula">Contains Formulas:</label>
+            <select id="haveFormula">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Select Images:</label>
+            <div class="btn-row">
+                <button id="authorize_button" onclick="handleAuthClick()" class="btn-google">
+                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="40" height="40" viewBox="0 0 48 48">
+                        <path fill="#1e88e5" d="M38.59,39c-0.535,0.93-0.298,1.68-1.195,2.197C36.498,41.715,35.465,42,34.39,42H13.61 c-1.074,0-2.106-0.285-3.004-0.802C9.708,40.681,9.945,39.93,9.41,39l7.67-9h13.84L38.59,39z"></path><path fill="#fbc02d" d="M27.463,6.999c1.073-0.002,2.104-0.716,3.001-0.198c0.897,0.519,1.66,1.27,2.197,2.201l10.39,17.996 c0.537,0.93,0.807,1.967,0.808,3.002c0.001,1.037-1.267,2.073-1.806,3.001l-11.127-3.005l-6.924-11.993L27.463,6.999z"></path><path fill="#e53935" d="M43.86,30c0,1.04-0.27,2.07-0.81,3l-3.67,6.35c-0.53,0.78-1.21,1.4-1.99,1.85L30.92,30H43.86z"></path><path fill="#4caf50" d="M5.947,33.001c-0.538-0.928-1.806-1.964-1.806-3c0.001-1.036,0.27-2.073,0.808-3.004l10.39-17.996 c0.537-0.93,1.3-1.682,2.196-2.2c0.897-0.519,1.929,0.195,3.002,0.197l3.459,11.009l-6.922,11.989L5.947,33.001z"></path><path fill="#1565c0" d="M17.08,30l-6.47,11.2c-0.78-0.45-1.46-1.07-1.99-1.85L4.95,33c-0.54-0.93-0.81-1.96-0.81-3H17.08z"></path><path fill="#2e7d32" d="M30.46,6.8L24,18L17.53,6.8c0.78-0.45,1.66-0.73,2.6-0.79L27.46,6C28.54,6,29.57,6.28,30.46,6.8z"></path>
+                    </svg>
+                    Google Drive
+                </button>
+                <button id="signout_button" onclick="handleSignoutClick()" class="hidden">
+                    Sign Out of Google
+                </button>
+            </div>
+            <p style="text-align: center; margin: 10px 0;">OR</p>
+            <input type="file" id="imageFiles" multiple accept="image/*">
+        </div>
+        
+        <div id="selected-images"></div>
+        
+        <button onclick="processImages()" class="btn-full">Process Images</button>
+        <h3>Response</h3>
+        <div id="output"></div>
+
+        <div style="text-align: center;">
+            <a id="downloadLink" class="hidden" download>Download Markdown</a>
+        </div>
+    </div>
+
+    <script>
+        const ENV = {
+            API_KEY: "{{ api_key }}",
+            CLIENT_ID: "{{ client_id }}",
+            APP_ID: "{{ app_id }}"
+        };
+    </script>
+    <script src="script.js"></script>
+    <script type="text/javascript">
+       
+        // Google Picker API variables
+        const SCOPES = 'https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/drive.readonly';
+        let tokenClient;
+        let accessToken = null;
+        let pickerInited = false;
+        let gisInited = false;
+        let selectedGoogleImages = [];
+        
+        document.getElementById('signout_button').style.visibility = 'hidden';
+        
+        // Local file handling
+        const selectedLocalImages = [];
+        document.getElementById('imageFiles').addEventListener('change', function(event) {
+            const files = event.target.files;
+            for (let i = 0; i < files.length; i++) {
+                selectedLocalImages.push({
+                    type: 'local',
+                    file: files[i],
+                    name: files[i].name
+                });
+            }
+            updateSelectedImagesDisplay();
+        });
+
+        // Process images function
+        async function processImages() {
+            const apiKey = document.getElementById("apiKey").value;
+            const language = document.getElementById("language").value;
+            const haveFormula = document.getElementById("haveFormula").value;
+            
+            if (!apiKey) {
+                alert("Please enter your API key.");
+                return;
+            }
+            
+            const allImages = [...selectedLocalImages, ...selectedGoogleImages];
+            if (allImages.length === 0) {
+                alert("Please select at least one image.");
+                return;
+            }
+
+            document.getElementById("output").innerText = "Please wait a few minutes for a response...";
+            document.getElementById("downloadLink").classList.add("hidden");
+            
+            const formData = new FormData();
+            formData.append("api_key", apiKey);
+            formData.append("language", language);
+            formData.append("have_formula", haveFormula);
+            
+            // Add local files
+            for (const item of selectedLocalImages) {
+                formData.append("images", item.file);
+            }
+            
+            // Add Google Drive files
+            for (const item of selectedGoogleImages) {
+                try {
+                    const response = await fetch(`https://www.googleapis.com/drive/v3/files/${item.id}?alt=media`, {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`
+                        }
+                    });
+                    
+                    const blob = await response.blob();
+                    const file = new File([blob], item.name, { type: blob.type });
+                    formData.append("images", file);
+                } catch (error) {
+                    console.error("Error fetching Google Drive file:", error);
+                    alert(`Error fetching file ${item.name} from Google Drive`);
+                    return;
+                }
+            }
+
+            try {
+                const response = await fetch(`/api/recognize`, {
+                    method: "POST",
+                    body: formData
+                });
+                
+                const data = await response.json();
+                document.getElementById("output").innerText = data.text;
+                
+                // Tạo file Markdown để tải về
+                const blob = new Blob([data.text], { type: "text/markdown" });
+                const url = URL.createObjectURL(blob);
+                const downloadLink = document.getElementById("downloadLink");
+                downloadLink.href = url;
+                downloadLink.download = "recognition_result.md";
+                downloadLink.innerText = "Download Markdown";
+                downloadLink.classList.remove("hidden");
+
+            } catch (error) {
+                document.getElementById("output").innerText = "An error occurred: " + error.message;
+            }
+        }
+
+        function callFlaskAPI() {
+            fetch(`${ENV.API_URL}/api/data`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('message').innerText = data.message;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        
+
+    </script>
+    </script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client"></script>
+</body>
+</html>
