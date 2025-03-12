@@ -1,3 +1,8 @@
+
+Document to run this project 
+## Prerequisite
+- 
+
 ### How to Use the Handwriting Recognition Tool
 
 
@@ -16,3 +21,4 @@
 3. **Working with Math Formulas**
    - If your text contains mathematical expressions, select **"Yes"** in the **Have formula?** field.
    - The tool will format math using LaTeX syntax
+
