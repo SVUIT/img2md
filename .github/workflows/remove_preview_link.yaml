@@ -2,7 +2,7 @@ name: Cleanup PR Deployment
 
 on:
   pull_request:
-    types: [closed]
+    types: [closed, synchronize]
 jobs:
   delete-preview-deployment:
     runs-on: ubuntu-latest
@@ -29,6 +29,7 @@ jobs:
           
   delete-package:
     runs-on: ubuntu-latest
+    if: github.event.action == 'closed'
     steps:
       - name: Delete GitHub Package
         run: |
