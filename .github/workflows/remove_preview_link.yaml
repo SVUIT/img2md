@@ -22,7 +22,7 @@ jobs:
       - name: Call Appwrite API to delete application
         run: |
           RESPONSE=$(curl -s -X POST "https://67d5bb8cc07395d8f67a.appwrite.global/delete-application" -d '{
-            "application_id": "${{ env.APPLICATION_ID }}"
+            "applicationId": "${{ env.APPLICATION_ID }}"
           }')
           
           echo "Delete successful with response: $RESPONSE and application ID: $APPLICATION_ID"

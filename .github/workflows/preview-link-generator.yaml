@@ -63,7 +63,7 @@ jobs:
         id: deploy
         run: |
           RESPONSE=$(curl -s -X POST "https://67d5bb8cc07395d8f67a.appwrite.global/create-application" -d '{
-            "name":"PR-${{ github.event.pull_request.number }}",
+            "name":"${{ env.REPO_NAME }}-PR-${{ github.event.pull_request.number }}",
             "dockerImage":"${{ env.IMAGE_NAME }}",
             "port": ${{vars.PORT}}
           }')
@@ -71,7 +71,7 @@ jobs:
           echo "API Response: $RESPONSE"
           
           DOMAIN=$(echo $RESPONSE | jq -r '.domain')
-          APPLICATION_ID=$(echo $RESPONSE | jq -r '.applicationID')
+          APPLICATION_ID=$(echo $RESPONSE | jq -r '.applicationId')
           echo "APPLICATION_ID=$APPLICATION_ID" >> $GITHUB_ENV
           echo "DOMAIN=$DOMAIN" >> $GITHUB_ENV
           if [ "$DOMAIN" != "null" ]; then
