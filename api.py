@@ -56,8 +56,9 @@ def recognize_formula(api_key, language, type_of_text, images):
     response = response.replace("```", '').replace("```markdown", '').replace('markdown','')
     # with open('result.md', "w", encoding="utf-8") as file:
     #     file.write(response)
-
-    return response
+    lines = response.split("\n")
+    formatted_response = "\n".join(line.rstrip() + "  " for line in lines)
+    return formatted_response
 
 @app.route('/api/recognize', methods=['POST'])
 def recognize():
