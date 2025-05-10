@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-app = Flask(__name__, static_folder='.', static_url_path='',template_folder=".")
+app = Flask(__name__, static_folder='.', static_url_path='/app/static',template_folder="static")
 CORS(app)
 
 def generate_prompt(have_formula, language):
