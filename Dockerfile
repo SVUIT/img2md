@@ -28,10 +28,11 @@ EXPOSE 7860
 # Thiết lập biến môi trường để Gradio lắng nghe trên tất cả các giao diện mạng
 ENV GRADIO_SERVER_NAME=0.0.0.0
 
-# Thêm label cho Traefik
 LABEL traefik.enable="true"
-LABEL traefik.http.routers.shop.rule="Host(`test.svuit.org`) && PathPrefix(`/img2md`)"
-LABEL traefik.http.services.shop.loadbalancer.server.port="7860"
+LABEL traefik.http.routers.myapp.rule="PathPrefix(`/app`)"
+LABEL traefik.http.middlewares.strip-app.stripprefix.prefixes="/app"
+LABEL traefik.http.routers.myapp.middlewares="strip-app"
+LABEL traefik.http.services.myapp.loadbalancer.server.port="7860"
 
 # Lệnh chạy ứng dụng, thay 'index.py' bằng file chính của ứng dụng bạn
 CMD ["python3", "api.py"]
