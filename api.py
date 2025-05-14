@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-app = Flask(__name__, static_folder='.', static_url_path='/app/static',template_folder="static")
+app = Flask(__name__, static_folder='.', static_url_path='',template_folder=".")
 CORS(app)
 
 def generate_prompt(have_formula, language):
@@ -84,4 +84,3 @@ def serve_index():
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=7860, debug=True)
-
