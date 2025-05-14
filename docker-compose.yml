@@ -1,10 +1,10 @@
 # docker-compose.yml
 services:
-  reverse-proxy:
+  traefik:
     image: traefik:v2.4
     command: --api.insecure=true --providers.docker
     ports:
-      - "8888:80"
+      - "80:80"
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
