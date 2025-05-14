@@ -4,7 +4,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.img2md_router.rule=Host(`test.svuit.org`) && PathPrefix(`/img2md`)"
-      - "traefik.http.routers.img2md_router.middlewares=img2md-stripprefix"
+      - "traefik.http.middlewares.img2md-strip.stripprefix.prefixes=/img2md"
+      - "traefik.http.routers.img2md.middlewares=img2md-strip"
       - "traefik.http.services.img2md_service.loadbalancer.server.port=7860"
     expose:
       - "7860"
