@@ -15,7 +15,7 @@ services:
     build: .
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.img2md.rule=Host(`test.svuit.org`) && PathPrefix(`/img2md`)"
+      - "traefik.http.routers.img2md.rule=Host(`test.svuit.org`)"
       - "traefik.http.services.img2md.loadbalancer.server.port=7860"
     expose:
       - "7860"
