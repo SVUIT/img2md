@@ -30,8 +30,8 @@ ENV GRADIO_SERVER_NAME=0.0.0.0
 
 # Thêm label cho Traefik
 LABEL traefik.enable="true"
-LABEL traefik.http.routers.gradio.rule="Host(`test.svuit.org`)&& PathPrefix(`/img2md`)"
-LABEL traefik.http.services.gradio.loadbalancer.server.port="7860"
+LABEL traefik.http.routers.shop.rule="Host(`test.svuit.org`) && PathPrefix(`/img2md`)"
+LABEL traefik.http.services.shop.loadbalancer.server.port="7860"
 
 # Lệnh chạy ứng dụng, thay 'index.py' bằng file chính của ứng dụng bạn
 CMD ["python3", "api.py"]
